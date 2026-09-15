@@ -1,0 +1,25 @@
+{
+  "entity": {
+    "switch": {
+      "scheduler": {
+        "default": "mdi:calendar-clock"
+      }
+    },
+    "binary_sensor": {
+      "allowed_period": {
+        "default": "mdi:clock-check-outline"
+      }
+    },
+    "sensor": {
+      "schedule": {
+        "default": "mdi:calendar-week"
+      },
+      "next_change": {
+        "default": "mdi:clock-end"
+      },
+      "status": {
+        "default": "mdi:information-outline"
+      }
+    }
+  }
+}

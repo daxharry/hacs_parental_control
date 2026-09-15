@@ -39,10 +39,11 @@ For each instance (for example `Kids`):
 |--------|------|-------------|
 | `switch.kids_scheduler` | Switch | Enables or suspends the automatic schedule |
 | `binary_sensor.kids_allowed_period` | Binary sensor | `on` during the allowed window |
+| `sensor.kids_weekly_schedule` | Sensor | Current weekly windows (also as attributes) |
 | `sensor.kids_next_change` | Sensor | Timestamp of the next on/off change |
 | `sensor.kids_status` | Sensor | `allowed` / `restricted` / `disabled` / `unavailable` |
 
-Entity IDs depend on the name you give the instance. Attributes list every selected switch and its current state.
+Entity IDs depend on the name you give the instance. Attributes list every selected switch, its current state, and the full week.
 
 ---
 
@@ -66,13 +67,23 @@ This HACS integration is installed from the repository branch content, without a
 
 ## Configuration
 
-1. Go to **Settings → Devices & services → Add integration**
-2. Search for **Parental Control**
+Parental Control is a normal Home Assistant integration. After install and restart it appears under **Settings → Devices & services → Integrations** (not under Helpers).
+
+1. Go to **Settings → Devices & services → Integrations**
+2. Click **Add integration** and search for **Parental Control**
 3. Give it a name (for example a child's name)
 4. Select **one or more** parental control switches (GL.iNet switches from ha-glinet-router, or any other switches)
 5. For each weekday, optionally enable a window and set the start and end times
 
-The schedule can later be edited with **Configure** on the integration entry.
+### View and edit the current config
+
+1. Open **Settings → Devices & services → Integrations**
+2. Select **Parental Control**
+3. Click **Configure**
+
+The dialog shows the current weekly schedule at the top, then the selected switches and every weekday window so you can change them in one place.
+
+The **Weekly schedule** sensor on the device also displays the same config (`Mon 16:00–20:00 · Tue off · …`), with a markdown table in the `schedule_markdown` attribute for Lovelace.
 
 ### Example
 

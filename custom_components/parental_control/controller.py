@@ -28,7 +28,10 @@ from .schedule import (
     is_in_allowed_period,
     merged_config,
     next_change,
+    schedule_markdown,
+    schedule_summary,
     today_window,
+    week_config,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,7 +75,9 @@ class ParentalControlController:
             name=self.name,
             manufacturer="Parental Control",
             model="Weekly schedule",
+            sw_version="1.2.0",
             entry_type=DeviceEntryType.SERVICE,
+            configuration_url="https://github.com/daxharry/hacs_parental_control",
         )
 
     def now(self) -> datetime:
@@ -119,6 +124,7 @@ class ParentalControlController:
             state = self.hass.states.get(entity_id)
             switch_states[entity_id] = state.state if state else "unavailable"
         return {
+            "name": self.name,
             "switch_entity_ids": self.switch_entity_ids,
             "switch_states": switch_states,
             "in_allowed_period": self.in_allowed_period(now),
@@ -128,7 +134,13 @@ class ParentalControlController:
             "today_end": format_time(today.end) if today.enabled else None,
             "next_change": next_at.isoformat() if next_at else None,
             "invert": self.invert,
+            "schedule": week_config(self.config),
+            "schedule_summary": schedule_summary(self.config),
+            "schedule_markdown": schedule_markdown(self.config),
         }
+
+    def schedule_summary(self) -> str:
+        return schedule_summary(self.config)
 
     def async_add_listener(self, update_callback: Callable[[], None]) -> Callable[[], None]:
         self._listeners.append(update_callback)

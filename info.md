@@ -10,10 +10,13 @@ Originally created for **GL.iNet** parental control switches from the [ha-glinet
 
 This HACS integration is installed directly from the repository content, without a GitHub release.
 
+Appears under **Settings → Devices & services → Integrations**. Open the entry and click **Configure** to view and edit the current weekly schedule.
+
 ## Created entities
 
 - 🗓️ **Scheduler** *(switch)* — enable or suspend the schedule
 - ⏰ **Allowed period** *(binary sensor)*
+- 📅 **Weekly schedule** — current config at a glance
 - ⏭️ **Next change**
 - ℹ️ **Status**
 

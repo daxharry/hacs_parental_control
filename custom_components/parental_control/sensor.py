@@ -20,6 +20,7 @@ async def async_setup_entry(
     controller: ParentalControlController = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
         [
+            ParentalControlScheduleSensor(controller),
             ParentalControlNextChangeSensor(controller),
             ParentalControlStatusSensor(controller),
         ]
@@ -36,6 +37,24 @@ class _ParentalControlSensorBase(SensorEntity):
 
     async def async_added_to_hass(self) -> None:
         self.async_on_remove(self.controller.async_add_listener(self.async_write_ha_state))
+
+
+class ParentalControlScheduleSensor(_ParentalControlSensorBase):
+    """Readable view of the current weekly configuration."""
+
+    _attr_translation_key = "schedule"
+    _attr_icon = "mdi:calendar-week"
+
+    def __init__(self, controller: ParentalControlController) -> None:
+        super().__init__(controller, "schedule")
+
+    @property
+    def native_value(self) -> str:
+        return self.controller.schedule_summary()
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        return self.controller.extra_attributes()
 
 
 class ParentalControlNextChangeSensor(_ParentalControlSensorBase):

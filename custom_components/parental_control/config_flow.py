@@ -27,6 +27,9 @@ from .const import (
     WEEKDAYS,
     normalize_switch_entities,
 )
+from .schedule import schedule_summary
+
+_IDENTITY_KEYS = {CONF_NAME, CONF_SWITCH_ENTITIES, CONF_INVERT}
 
 
 def _base_defaults() -> dict[str, Any]:
@@ -73,7 +76,7 @@ def _user_schema(defaults: dict[str, Any]) -> vol.Schema:
     return vol.Schema(fields)
 
 
-def _schedule_schema(defaults: dict[str, Any]) -> vol.Schema:
+def _schedule_fields(defaults: dict[str, Any]) -> dict[Any, Any]:
     fields: dict[Any, Any] = {}
     for day in WEEKDAYS:
         fields[
@@ -94,6 +97,17 @@ def _schedule_schema(defaults: dict[str, Any]) -> vol.Schema:
                 default=defaults.get(f"{day}_end") or DEFAULT_END,
             )
         ] = TimeSelector()
+    return fields
+
+
+def _schedule_schema(defaults: dict[str, Any]) -> vol.Schema:
+    return vol.Schema(_schedule_fields(defaults))
+
+
+def _options_schema(defaults: dict[str, Any]) -> vol.Schema:
+    """Single form with current switches, logic, and the weekly schedule."""
+    fields: dict[Any, Any] = dict(_user_schema(defaults).schema)
+    fields.update(_schedule_fields(defaults))
     return vol.Schema(fields)
 
 
@@ -171,7 +185,6 @@ class ParentalControlOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry | None = None) -> None:
         self._config_entry = config_entry
-        self._user: dict[str, Any] = {}
 
     @property
     def _entry(self) -> config_entries.ConfigEntry:
@@ -185,9 +198,6 @@ class ParentalControlOptionsFlow(config_entries.OptionsFlow):
         return current
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        return await self.async_step_user()
-
-    async def async_step_user(self, user_input: dict[str, Any] | None = None):
         current = self._current()
         errors: dict[str, str] = {}
 
@@ -195,39 +205,33 @@ class ParentalControlOptionsFlow(config_entries.OptionsFlow):
             entity_ids = normalize_switch_entities(user_input)
             if not entity_ids:
                 errors[CONF_SWITCH_ENTITIES] = "no_switches"
-            else:
+            errors.update(_validate_schedule(user_input))
+            if not errors:
                 name = (user_input.get(CONF_NAME) or "").strip() or current[CONF_NAME]
-                self._user = {
+                data = {
+                    **dict(self._entry.data),
                     CONF_NAME: name,
                     CONF_SWITCH_ENTITIES: entity_ids,
                     CONF_INVERT: bool(user_input.get(CONF_INVERT, False)),
                 }
-                return await self.async_step_schedule()
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=_user_schema(current),
-            errors=errors,
-        )
-
-    async def async_step_schedule(self, user_input: dict[str, Any] | None = None):
-        current = self._current()
-        errors: dict[str, str] = {}
-
-        if user_input is not None:
-            errors = _validate_schedule(user_input)
-            if not errors:
-                data = {**dict(self._entry.data), **self._user}
                 data.pop(CONF_SWITCH_ENTITY, None)
                 self.hass.config_entries.async_update_entry(
                     self._entry,
-                    title=self._user[CONF_NAME],
+                    title=name,
                     data=data,
                 )
-                return self.async_create_entry(title="", data=user_input)
+                schedule = {
+                    key: value
+                    for key, value in user_input.items()
+                    if key not in _IDENTITY_KEYS
+                }
+                return self.async_create_entry(title="", data=schedule)
+            current = {**current, **user_input}
+            current[CONF_SWITCH_ENTITIES] = entity_ids
 
         return self.async_show_form(
-            step_id="schedule",
-            data_schema=_schedule_schema(current),
+            step_id="init",
+            data_schema=_options_schema(current),
             errors=errors,
+            description_placeholders={"summary": schedule_summary(current)},
         )

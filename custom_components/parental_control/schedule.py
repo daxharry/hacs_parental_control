@@ -107,3 +107,59 @@ def next_change(now: datetime, config: dict[str, Any]) -> datetime | None:
 def today_window(now: datetime, config: dict[str, Any]) -> DaySchedule:
     """Return today's configured schedule."""
     return day_from_config(config, weekday_key(now))
+
+
+DAY_SHORT = {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun",
+}
+
+DAY_LABELS = {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+}
+
+
+def day_window_label(config: dict[str, Any], day: str) -> str:
+    """Return 'HH:MM–HH:MM' or 'off' for a weekday."""
+    schedule = day_from_config(config, day)
+    if not schedule.enabled:
+        return "off"
+    return f"{format_time(schedule.start)}–{format_time(schedule.end)}"
+
+
+def week_config(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """Return structured weekly windows for attributes and the UI."""
+    result: dict[str, dict[str, Any]] = {}
+    for day in WEEKDAYS:
+        schedule = day_from_config(config, day)
+        result[day] = {
+            "enabled": schedule.enabled,
+            "start": format_time(schedule.start) if schedule.enabled else None,
+            "end": format_time(schedule.end) if schedule.enabled else None,
+            "label": day_window_label(config, day),
+        }
+    return result
+
+
+def schedule_summary(config: dict[str, Any]) -> str:
+    """Compact one-line view of the weekly schedule."""
+    return " · ".join(f"{DAY_SHORT[day]} {day_window_label(config, day)}" for day in WEEKDAYS)
+
+
+def schedule_markdown(config: dict[str, Any]) -> str:
+    """Markdown table of the weekly schedule."""
+    lines = ["| Day | Window |", "|---|---|"]
+    for day in WEEKDAYS:
+        lines.append(f"| {DAY_LABELS[day]} | {day_window_label(config, day)} |")
+    return "\n".join(lines)

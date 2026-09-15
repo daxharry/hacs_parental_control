@@ -54,24 +54,13 @@
   },
   "options": {
     "step": {
-      "user": {
+      "init": {
         "title": "Contrôle parental",
-        "description": "Modifiez le nom, les switchs cibles ou la logique du switch.",
+        "description": "Planning actuel : {summary}. Modifiez les switchs et les plages ci-dessous, puis validez.",
         "data": {
           "name": "Nom",
           "switch_entity_ids": "Switchs de contrôle parental",
-          "invert": "Inverser la logique du switch"
-        },
-        "data_description": {
-          "name": "Nom affiché pour ce planning (par exemple le prénom d'un enfant).",
-          "switch_entity_ids": "Switchs qui seront éteints pendant la plage autorisée. Vous pouvez en sélectionner autant que vous voulez.",
-          "invert": "Cochez cette option si les switchs doivent être allumés (au lieu d'être éteints) pendant la plage autorisée."
-        }
-      },
-      "schedule": {
-        "title": "Planning hebdomadaire",
-        "description": "Pour chaque jour de la semaine, activez une plage horaire pendant laquelle les switchs sélectionnés sont éteints automatiquement. En dehors de cette plage, ils sont rallumés.",
-        "data": {
+          "invert": "Inverser la logique du switch",
           "monday_enabled": "Lundi — activer la plage",
           "monday_start": "Lundi — début",
           "monday_end": "Lundi — fin",
@@ -93,6 +82,11 @@
           "sunday_enabled": "Dimanche — activer la plage",
           "sunday_start": "Dimanche — début",
           "sunday_end": "Dimanche — fin"
+        },
+        "data_description": {
+          "name": "Nom affiché pour ce planning (par exemple le prénom d'un enfant).",
+          "switch_entity_ids": "Switchs qui seront éteints pendant la plage autorisée. Vous pouvez en sélectionner autant que vous voulez.",
+          "invert": "Cochez cette option si les switchs doivent être allumés (au lieu d'être éteints) pendant la plage autorisée."
         }
       }
     },
@@ -113,6 +107,9 @@
       }
     },
     "sensor": {
+      "schedule": {
+        "name": "Planning hebdomadaire"
+      },
       "next_change": {
         "name": "Prochain changement"
       },
