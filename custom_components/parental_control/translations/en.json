@@ -1,0 +1,128 @@
+{
+  "title": "Parental Control",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Parental Control",
+        "description": "Choose the switch to control. This integration was originally written for the parental control switches from the ha-glinet-router GL.iNet integration, but it works with any Home Assistant switch.",
+        "data": {
+          "name": "Name",
+          "switch_entity_id": "Parental control switch",
+          "invert": "Invert switch logic"
+        },
+        "data_description": {
+          "name": "Friendly name for this schedule (for example a child's name).",
+          "switch_entity_id": "Switch that will be turned off during the allowed window.",
+          "invert": "Enable this if the target switch must be turned on (instead of off) during the allowed window."
+        }
+      },
+      "schedule": {
+        "title": "Weekly schedule",
+        "description": "For each weekday, enable a time window during which the parental control switch is automatically turned off. Outside that window the switch is turned back on. If the start time is later than the end time, the window continues after midnight.",
+        "data": {
+          "monday_enabled": "Monday — enable window",
+          "monday_start": "Monday — start",
+          "monday_end": "Monday — end",
+          "tuesday_enabled": "Tuesday — enable window",
+          "tuesday_start": "Tuesday — start",
+          "tuesday_end": "Tuesday — end",
+          "wednesday_enabled": "Wednesday — enable window",
+          "wednesday_start": "Wednesday — start",
+          "wednesday_end": "Wednesday — end",
+          "thursday_enabled": "Thursday — enable window",
+          "thursday_start": "Thursday — start",
+          "thursday_end": "Thursday — end",
+          "friday_enabled": "Friday — enable window",
+          "friday_start": "Friday — start",
+          "friday_end": "Friday — end",
+          "saturday_enabled": "Saturday — enable window",
+          "saturday_start": "Saturday — start",
+          "saturday_end": "Saturday — end",
+          "sunday_enabled": "Sunday — enable window",
+          "sunday_start": "Sunday — start",
+          "sunday_end": "Sunday — end"
+        }
+      }
+    },
+    "error": {
+      "invalid_period": "Start and end must be different when the day is enabled."
+    },
+    "abort": {
+      "already_configured": "This switch already has a parental control schedule."
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Parental Control",
+        "description": "Update the name, the target switch, or the switch logic.",
+        "data": {
+          "name": "Name",
+          "switch_entity_id": "Parental control switch",
+          "invert": "Invert switch logic"
+        },
+        "data_description": {
+          "name": "Friendly name for this schedule (for example a child's name).",
+          "switch_entity_id": "Switch that will be turned off during the allowed window.",
+          "invert": "Enable this if the target switch must be turned on (instead of off) during the allowed window."
+        }
+      },
+      "schedule": {
+        "title": "Weekly schedule",
+        "description": "For each weekday, enable a time window during which the parental control switch is automatically turned off. Outside that window the switch is turned back on.",
+        "data": {
+          "monday_enabled": "Monday — enable window",
+          "monday_start": "Monday — start",
+          "monday_end": "Monday — end",
+          "tuesday_enabled": "Tuesday — enable window",
+          "tuesday_start": "Tuesday — start",
+          "tuesday_end": "Tuesday — end",
+          "wednesday_enabled": "Wednesday — enable window",
+          "wednesday_start": "Wednesday — start",
+          "wednesday_end": "Wednesday — end",
+          "thursday_enabled": "Thursday — enable window",
+          "thursday_start": "Thursday — start",
+          "thursday_end": "Thursday — end",
+          "friday_enabled": "Friday — enable window",
+          "friday_start": "Friday — start",
+          "friday_end": "Friday — end",
+          "saturday_enabled": "Saturday — enable window",
+          "saturday_start": "Saturday — start",
+          "saturday_end": "Saturday — end",
+          "sunday_enabled": "Sunday — enable window",
+          "sunday_start": "Sunday — start",
+          "sunday_end": "Sunday — end"
+        }
+      }
+    },
+    "error": {
+      "invalid_period": "Start and end must be different when the day is enabled."
+    }
+  },
+  "entity": {
+    "switch": {
+      "scheduler": {
+        "name": "Scheduler"
+      }
+    },
+    "binary_sensor": {
+      "allowed_period": {
+        "name": "Allowed period"
+      }
+    },
+    "sensor": {
+      "next_change": {
+        "name": "Next change"
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "disabled": "Disabled",
+          "unavailable": "Unavailable",
+          "allowed": "Allowed",
+          "restricted": "Restricted"
+        }
+      }
+    }
+  }
+}

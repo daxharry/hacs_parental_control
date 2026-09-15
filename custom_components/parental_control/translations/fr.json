@@ -1,0 +1,128 @@
+{
+  "title": "Contrôle parental",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Contrôle parental",
+        "description": "Choisissez le switch à piloter. Cette intégration a été créée à l'origine pour les switchs de contrôle parental GL.iNet de l'intégration ha-glinet-router, mais elle fonctionne avec n'importe quel switch Home Assistant.",
+        "data": {
+          "name": "Nom",
+          "switch_entity_id": "Switch de contrôle parental",
+          "invert": "Inverser la logique du switch"
+        },
+        "data_description": {
+          "name": "Nom affiché pour ce planning (par exemple le prénom d'un enfant).",
+          "switch_entity_id": "Switch qui sera éteint pendant la plage autorisée.",
+          "invert": "Cochez cette option si le switch doit être allumé (au lieu d'être éteint) pendant la plage autorisée."
+        }
+      },
+      "schedule": {
+        "title": "Planning hebdomadaire",
+        "description": "Pour chaque jour de la semaine, activez une plage horaire pendant laquelle le switch de contrôle parental est éteint automatiquement. En dehors de cette plage, le switch est rallumé. Si l'heure de début est postérieure à l'heure de fin, la plage continue après minuit.",
+        "data": {
+          "monday_enabled": "Lundi — activer la plage",
+          "monday_start": "Lundi — début",
+          "monday_end": "Lundi — fin",
+          "tuesday_enabled": "Mardi — activer la plage",
+          "tuesday_start": "Mardi — début",
+          "tuesday_end": "Mardi — fin",
+          "wednesday_enabled": "Mercredi — activer la plage",
+          "wednesday_start": "Mercredi — début",
+          "wednesday_end": "Mercredi — fin",
+          "thursday_enabled": "Jeudi — activer la plage",
+          "thursday_start": "Jeudi — début",
+          "thursday_end": "Jeudi — fin",
+          "friday_enabled": "Vendredi — activer la plage",
+          "friday_start": "Vendredi — début",
+          "friday_end": "Vendredi — fin",
+          "saturday_enabled": "Samedi — activer la plage",
+          "saturday_start": "Samedi — début",
+          "saturday_end": "Samedi — fin",
+          "sunday_enabled": "Dimanche — activer la plage",
+          "sunday_start": "Dimanche — début",
+          "sunday_end": "Dimanche — fin"
+        }
+      }
+    },
+    "error": {
+      "invalid_period": "Le début et la fin doivent être différents lorsque le jour est activé."
+    },
+    "abort": {
+      "already_configured": "Ce switch a déjà un planning de contrôle parental."
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Contrôle parental",
+        "description": "Modifiez le nom, le switch cible ou la logique du switch.",
+        "data": {
+          "name": "Nom",
+          "switch_entity_id": "Switch de contrôle parental",
+          "invert": "Inverser la logique du switch"
+        },
+        "data_description": {
+          "name": "Nom affiché pour ce planning (par exemple le prénom d'un enfant).",
+          "switch_entity_id": "Switch qui sera éteint pendant la plage autorisée.",
+          "invert": "Cochez cette option si le switch doit être allumé (au lieu d'être éteint) pendant la plage autorisée."
+        }
+      },
+      "schedule": {
+        "title": "Planning hebdomadaire",
+        "description": "Pour chaque jour de la semaine, activez une plage horaire pendant laquelle le switch de contrôle parental est éteint automatiquement. En dehors de cette plage, le switch est rallumé.",
+        "data": {
+          "monday_enabled": "Lundi — activer la plage",
+          "monday_start": "Lundi — début",
+          "monday_end": "Lundi — fin",
+          "tuesday_enabled": "Mardi — activer la plage",
+          "tuesday_start": "Mardi — début",
+          "tuesday_end": "Mardi — fin",
+          "wednesday_enabled": "Mercredi — activer la plage",
+          "wednesday_start": "Mercredi — début",
+          "wednesday_end": "Mercredi — fin",
+          "thursday_enabled": "Jeudi — activer la plage",
+          "thursday_start": "Jeudi — début",
+          "thursday_end": "Jeudi — fin",
+          "friday_enabled": "Vendredi — activer la plage",
+          "friday_start": "Vendredi — début",
+          "friday_end": "Vendredi — fin",
+          "saturday_enabled": "Samedi — activer la plage",
+          "saturday_start": "Samedi — début",
+          "saturday_end": "Samedi — fin",
+          "sunday_enabled": "Dimanche — activer la plage",
+          "sunday_start": "Dimanche — début",
+          "sunday_end": "Dimanche — fin"
+        }
+      }
+    },
+    "error": {
+      "invalid_period": "Le début et la fin doivent être différents lorsque le jour est activé."
+    }
+  },
+  "entity": {
+    "switch": {
+      "scheduler": {
+        "name": "Planification"
+      }
+    },
+    "binary_sensor": {
+      "allowed_period": {
+        "name": "Plage autorisée"
+      }
+    },
+    "sensor": {
+      "next_change": {
+        "name": "Prochain changement"
+      },
+      "status": {
+        "name": "Statut",
+        "state": {
+          "disabled": "Désactivé",
+          "unavailable": "Indisponible",
+          "allowed": "Autorisé",
+          "restricted": "Restreint"
+        }
+      }
+    }
+  }
+}
