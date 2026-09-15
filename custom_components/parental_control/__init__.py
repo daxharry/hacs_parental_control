@@ -6,7 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import CONF_SWITCH_ENTITIES, CONF_SWITCH_ENTITY, DOMAIN, normalize_switch_entities
 from .controller import ParentalControlController
 
 PLATFORMS = [Platform.SWITCH, Platform.BINARY_SENSOR, Platform.SENSOR]
@@ -35,3 +35,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload the integration when options change."""
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate a config entry to the current version."""
+    if entry.version < 2:
+        data = dict(entry.data)
+        data[CONF_SWITCH_ENTITIES] = normalize_switch_entities(data)
+        data.pop(CONF_SWITCH_ENTITY, None)
+        hass.config_entries.async_update_entry(entry, data=data)
+        entry.version = 2
+    return True

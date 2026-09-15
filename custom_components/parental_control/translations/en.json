@@ -4,21 +4,21 @@
     "step": {
       "user": {
         "title": "Parental Control",
-        "description": "Choose the switch to control. This integration was originally written for the parental control switches from the ha-glinet-router GL.iNet integration, but it works with any Home Assistant switch.",
+        "description": "Choose one or more switches to control. This integration was originally written for the parental control switches from the ha-glinet-router GL.iNet integration, but it works with any Home Assistant switch.",
         "data": {
           "name": "Name",
-          "switch_entity_id": "Parental control switch",
+          "switch_entity_ids": "Parental control switches",
           "invert": "Invert switch logic"
         },
         "data_description": {
           "name": "Friendly name for this schedule (for example a child's name).",
-          "switch_entity_id": "Switch that will be turned off during the allowed window.",
-          "invert": "Enable this if the target switch must be turned on (instead of off) during the allowed window."
+          "switch_entity_ids": "Switches that will be turned off during the allowed window. You can select as many as you need.",
+          "invert": "Enable this if the target switches must be turned on (instead of off) during the allowed window."
         }
       },
       "schedule": {
         "title": "Weekly schedule",
-        "description": "For each weekday, enable a time window during which the parental control switch is automatically turned off. Outside that window the switch is turned back on. If the start time is later than the end time, the window continues after midnight.",
+        "description": "For each weekday, enable a time window during which the selected switches are automatically turned off. Outside that window they are turned back on. If the start time is later than the end time, the window continues after midnight.",
         "data": {
           "monday_enabled": "Monday — enable window",
           "monday_start": "Monday — start",
@@ -45,31 +45,32 @@
       }
     },
     "error": {
-      "invalid_period": "Start and end must be different when the day is enabled."
+      "invalid_period": "Start and end must be different when the day is enabled.",
+      "no_switches": "Select at least one switch."
     },
     "abort": {
-      "already_configured": "This switch already has a parental control schedule."
+      "already_configured": "These switches already have a parental control schedule."
     }
   },
   "options": {
     "step": {
       "user": {
         "title": "Parental Control",
-        "description": "Update the name, the target switch, or the switch logic.",
+        "description": "Update the name, the target switches, or the switch logic.",
         "data": {
           "name": "Name",
-          "switch_entity_id": "Parental control switch",
+          "switch_entity_ids": "Parental control switches",
           "invert": "Invert switch logic"
         },
         "data_description": {
           "name": "Friendly name for this schedule (for example a child's name).",
-          "switch_entity_id": "Switch that will be turned off during the allowed window.",
-          "invert": "Enable this if the target switch must be turned on (instead of off) during the allowed window."
+          "switch_entity_ids": "Switches that will be turned off during the allowed window. You can select as many as you need.",
+          "invert": "Enable this if the target switches must be turned on (instead of off) during the allowed window."
         }
       },
       "schedule": {
         "title": "Weekly schedule",
-        "description": "For each weekday, enable a time window during which the parental control switch is automatically turned off. Outside that window the switch is turned back on.",
+        "description": "For each weekday, enable a time window during which the selected switches are automatically turned off. Outside that window they are turned back on.",
         "data": {
           "monday_enabled": "Monday — enable window",
           "monday_start": "Monday — start",
@@ -96,7 +97,8 @@
       }
     },
     "error": {
-      "invalid_period": "Start and end must be different when the day is enabled."
+      "invalid_period": "Start and end must be different when the day is enabled.",
+      "no_switches": "Select at least one switch."
     }
   },
   "entity": {

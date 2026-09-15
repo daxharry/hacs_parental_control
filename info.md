@@ -1,23 +1,23 @@
-# Parental Control pour Home Assistant
+# Parental Control for Home Assistant
 
 <p align="center">
   <img src="icon.png" alt="Parental Control" width="128" height="128">
 </p>
 
-Planning hebdomadaire pour **désactiver automatiquement un switch de contrôle parental** pendant une plage horaire définie pour chaque jour de la semaine.
+Weekly schedule that **automatically turns parental control switches off** during a time window defined for each day of the week. You can select as many switches as you want.
 
-Créé à l'origine pour les switchs de contrôle parental **GL.iNet** de l'intégration [ha-glinet-router](https://github.com/vithurshanselvarajah/ha-glinet-router). Fonctionne avec n'importe quel switch Home Assistant.
+Originally created for **GL.iNet** parental control switches from the [ha-glinet-router](https://github.com/vithurshanselvarajah/ha-glinet-router) integration. Works with any Home Assistant switch.
 
-Cette intégration HACS s'installe directement depuis le contenu du dépôt, sans release GitHub.
+This HACS integration is installed directly from the repository content, without a GitHub release.
 
-## Entités créées
+## Created entities
 
-- 🗓️ **Planification** *(switch)* — active ou suspend le planning
-- ⏰ **Plage autorisée** *(binary sensor)*
-- ⏭️ **Prochain changement**
-- ℹ️ **Statut**
+- 🗓️ **Scheduler** *(switch)* — enable or suspend the schedule
+- ⏰ **Allowed period** *(binary sensor)*
+- ⏭️ **Next change**
+- ℹ️ **Status**
 
-## Icône
+## Icon
 
-- HACS et Home Assistant utilisent `custom_components/parental_control/brand/icon.png` et `custom_components/parental_control/brand/logo.png`.
-- `icon.png` à la racine sert uniquement à l'affichage de cette page.
+- HACS and Home Assistant use `custom_components/parental_control/brand/icon.png` and `custom_components/parental_control/brand/logo.png`.
+- Root `icon.png` is only used to display this page.

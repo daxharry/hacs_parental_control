@@ -19,11 +19,13 @@ from homeassistant.helpers.selector import (
 from .const import (
     CONF_INVERT,
     CONF_NAME,
+    CONF_SWITCH_ENTITIES,
     CONF_SWITCH_ENTITY,
     DEFAULT_END,
     DEFAULT_START,
     DOMAIN,
     WEEKDAYS,
+    normalize_switch_entities,
 )
 
 
@@ -31,7 +33,7 @@ def _base_defaults() -> dict[str, Any]:
     defaults: dict[str, Any] = {
         CONF_NAME: "",
         CONF_INVERT: False,
-        CONF_SWITCH_ENTITY: None,
+        CONF_SWITCH_ENTITIES: [],
     }
     for day in WEEKDAYS:
         defaults[f"{day}_enabled"] = False
@@ -40,17 +42,31 @@ def _base_defaults() -> dict[str, Any]:
     return defaults
 
 
+def _title_from_switches(hass, entity_ids: list[str]) -> str:
+    names: list[str] = []
+    for entity_id in entity_ids[:3]:
+        state = hass.states.get(entity_id)
+        names.append(state.name if state else entity_id)
+    title = ", ".join(names) if names else "Parental Control"
+    if len(entity_ids) > 3:
+        title += f" +{len(entity_ids) - 3}"
+    return title
+
+
 def _user_schema(defaults: dict[str, Any]) -> vol.Schema:
-    switch_selector = EntitySelector(EntitySelectorConfig(domain="switch"))
+    switch_selector = EntitySelector(
+        EntitySelectorConfig(domain="switch", multiple=True)
+    )
+    entity_ids = normalize_switch_entities(defaults)
     fields: dict[Any, Any] = {
         vol.Required(CONF_NAME, default=defaults.get(CONF_NAME) or ""): TextSelector(),
     }
-    if defaults.get(CONF_SWITCH_ENTITY):
+    if entity_ids:
         fields[
-            vol.Required(CONF_SWITCH_ENTITY, default=defaults[CONF_SWITCH_ENTITY])
+            vol.Required(CONF_SWITCH_ENTITIES, default=entity_ids)
         ] = switch_selector
     else:
-        fields[vol.Required(CONF_SWITCH_ENTITY)] = switch_selector
+        fields[vol.Required(CONF_SWITCH_ENTITIES)] = switch_selector
     fields[
         vol.Optional(CONF_INVERT, default=bool(defaults.get(CONF_INVERT, False)))
     ] = BooleanSelector()
@@ -96,7 +112,7 @@ def _validate_schedule(user_input: dict[str, Any]) -> dict[str, str]:
 class ParentalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Parental Control."""
 
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self) -> None:
         self._data: dict[str, Any] = _base_defaults()
@@ -110,18 +126,20 @@ class ParentalControlConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            name = (user_input.get(CONF_NAME) or "").strip()
-            entity_id = user_input[CONF_SWITCH_ENTITY]
-            if not name:
-                state = self.hass.states.get(entity_id)
-                name = state.name if state else entity_id
-            self._data[CONF_NAME] = name
-            self._data[CONF_SWITCH_ENTITY] = entity_id
-            self._data[CONF_INVERT] = bool(user_input.get(CONF_INVERT, False))
+            entity_ids = normalize_switch_entities(user_input)
+            if not entity_ids:
+                errors[CONF_SWITCH_ENTITIES] = "no_switches"
+            else:
+                name = (user_input.get(CONF_NAME) or "").strip()
+                if not name:
+                    name = _title_from_switches(self.hass, entity_ids)
+                self._data[CONF_NAME] = name
+                self._data[CONF_SWITCH_ENTITIES] = entity_ids
+                self._data[CONF_INVERT] = bool(user_input.get(CONF_INVERT, False))
 
-            await self.async_set_unique_id(entity_id)
-            self._abort_if_unique_id_configured()
-            return await self.async_step_schedule()
+                await self.async_set_unique_id(",".join(sorted(entity_ids)))
+                self._abort_if_unique_id_configured()
+                return await self.async_step_schedule()
 
         return self.async_show_form(
             step_id="user",
@@ -163,6 +181,7 @@ class ParentalControlOptionsFlow(config_entries.OptionsFlow):
         current = _base_defaults()
         current.update(dict(self._entry.data))
         current.update(dict(self._entry.options))
+        current[CONF_SWITCH_ENTITIES] = normalize_switch_entities(current)
         return current
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
@@ -173,13 +192,17 @@ class ParentalControlOptionsFlow(config_entries.OptionsFlow):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            name = (user_input.get(CONF_NAME) or "").strip() or current[CONF_NAME]
-            self._user = {
-                CONF_NAME: name,
-                CONF_SWITCH_ENTITY: user_input[CONF_SWITCH_ENTITY],
-                CONF_INVERT: bool(user_input.get(CONF_INVERT, False)),
-            }
-            return await self.async_step_schedule()
+            entity_ids = normalize_switch_entities(user_input)
+            if not entity_ids:
+                errors[CONF_SWITCH_ENTITIES] = "no_switches"
+            else:
+                name = (user_input.get(CONF_NAME) or "").strip() or current[CONF_NAME]
+                self._user = {
+                    CONF_NAME: name,
+                    CONF_SWITCH_ENTITIES: entity_ids,
+                    CONF_INVERT: bool(user_input.get(CONF_INVERT, False)),
+                }
+                return await self.async_step_schedule()
 
         return self.async_show_form(
             step_id="user",
@@ -194,13 +217,12 @@ class ParentalControlOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             errors = _validate_schedule(user_input)
             if not errors:
+                data = {**dict(self._entry.data), **self._user}
+                data.pop(CONF_SWITCH_ENTITY, None)
                 self.hass.config_entries.async_update_entry(
                     self._entry,
                     title=self._user[CONF_NAME],
-                    data={
-                        **dict(self._entry.data),
-                        **self._user,
-                    },
+                    data=data,
                 )
                 return self.async_create_entry(title="", data=user_input)
 

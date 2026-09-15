@@ -1,7 +1,7 @@
 {
   "domain": "parental_control",
   "name": "Parental Control",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "documentation": "https://github.com/daxharry/hacs_parental_control",
   "issue_tracker": "https://github.com/daxharry/hacs_parental_control/issues",
   "codeowners": ["@daxharry"],

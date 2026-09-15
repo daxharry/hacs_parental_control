@@ -1,105 +1,105 @@
-# Parental Control – Intégration Home Assistant
+# Parental Control – Home Assistant integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
-Intégration HACS pour Home Assistant qui applique un **planning hebdomadaire** à un switch de contrôle parental : pour chaque jour de la semaine, vous définissez une plage horaire pendant laquelle le switch est **éteint automatiquement**. En dehors de cette plage, le switch est **rallumé**.
+HACS integration for Home Assistant that applies a **weekly schedule** to one or more parental control switches. For each day of the week you define a time window during which the selected switches are **turned off automatically**. Outside that window they are **turned back on**.
 
-Cette intégration a été créée à l'origine pour piloter les **switchs de contrôle parental GL.iNet** exposés par [ha-glinet-router](https://github.com/vithurshanselvarajah/ha-glinet-router). Elle fonctionne avec n'importe quel switch Home Assistant.
-
----
-
-## Objectif
-
-Sur un routeur GL.iNet, le contrôle parental se présente souvent comme un switch Home Assistant (un groupe, un profil ou un accès internet enfant). Ce module sert à **ouvrir l'accès pendant des horaires précis** et à **remettre le contrôle parental en place le reste du temps**, sans écrire d'automations YAML.
-
-Vous pouvez ajouter plusieurs instances, par exemple une par enfant ou par groupe GL.iNet.
+This integration was originally created to drive **GL.iNet parental control switches** exposed by [ha-glinet-router](https://github.com/vithurshanselvarajah/ha-glinet-router). It works with any Home Assistant switch.
 
 ---
 
-## Fonctionnement
+## Purpose
 
-| Moment | Action par défaut sur le switch |
-|--------|----------------------------------|
-| Pendant la plage du jour | `switch.turn_off` — le contrôle parental est désactivé |
-| En dehors de la plage | `switch.turn_on` — le contrôle parental est réactivé |
-| Jour non activé dans le planning | le switch reste allumé toute la journée |
+On a GL.iNet router, parental control often appears as Home Assistant switches (a group, a profile, or a child's internet access). This integration **opens access during specific hours** and **re-enables parental control the rest of the time**, without writing YAML automations.
 
-- Si l'heure de début est **postérieure** à l'heure de fin (exemple : 21:00 → 07:00), la plage **passe minuit**.
-- Le planning est réévalué **toutes les minutes** et aussi au démarrage de Home Assistant.
-- Un switch **Planification** permet de suspendre l'application automatique sans supprimer le planning.
-- L'option **Inverser la logique du switch** inverse on/off si votre switch GL.iNet (ou un autre) a un sens opposé.
+You can select as many switches as you want on a single schedule, and add several instances if you need different weekly windows.
 
 ---
 
-## Entités créées
+## How it works
 
-Pour chaque instance (par exemple `Enfants`) :
+| When | Default action on every selected switch |
+|------|------------------------------------------|
+| During the day's window | `switch.turn_off` — parental control is deactivated |
+| Outside the window | `switch.turn_on` — parental control is reactivated |
+| Day not enabled in the schedule | switches stay on all day |
 
-| Entité | Type | Description |
+- If the start time is **later** than the end time (for example 21:00 → 07:00), the window **crosses midnight**.
+- The schedule is re-evaluated **every minute** and also when Home Assistant starts.
+- A **Scheduler** switch can suspend automatic enforcement without deleting the schedule.
+- **Invert switch logic** flips on/off if your GL.iNet (or other) switches work the other way around.
+
+---
+
+## Created entities
+
+For each instance (for example `Kids`):
+
+| Entity | Type | Description |
 |--------|------|-------------|
-| `switch.enfants_planification` | Switch | Active ou suspend le planning automatique |
-| `binary_sensor.enfants_plage_autorisee` | Binary sensor | `on` pendant la plage autorisée |
-| `sensor.enfants_prochain_changement` | Sensor | Horodatage du prochain allumage/extinction |
-| `sensor.enfants_statut` | Sensor | `allowed` / `restricted` / `disabled` / `unavailable` |
+| `switch.kids_scheduler` | Switch | Enables or suspends the automatic schedule |
+| `binary_sensor.kids_allowed_period` | Binary sensor | `on` during the allowed window |
+| `sensor.kids_next_change` | Sensor | Timestamp of the next on/off change |
+| `sensor.kids_status` | Sensor | `allowed` / `restricted` / `disabled` / `unavailable` |
 
-Les identifiants d'entités dépendent du nom que vous donnez à l'instance.
+Entity IDs depend on the name you give the instance. Attributes list every selected switch and its current state.
 
 ---
 
 ## Installation via HACS
 
-1. Ouvrez HACS dans Home Assistant
-2. Cliquez sur **Intégrations** → ⋮ → **Dépôts personnalisés**
-3. Ajoutez l'URL : `https://github.com/daxharry/hacs_parental_control`
-4. Catégorie : **Intégration**
-5. Cliquez sur **Télécharger**
-6. Redémarrez Home Assistant
+1. Open HACS in Home Assistant
+2. Click **Integrations** → ⋮ → **Custom repositories**
+3. Add the URL: `https://github.com/daxharry/hacs_parental_control`
+4. Category: **Integration**
+5. Click **Download**
+6. Restart Home Assistant
 
-Cette intégration HACS s'installe depuis le contenu de la branche du dépôt, sans archive de release GitHub. Le fichier `hacs.json` définit donc `zip_release: false`.
+This HACS integration is installed from the repository branch content, without a GitHub release archive. `hacs.json` therefore sets `zip_release: false`.
 
-## Installation manuelle
+## Manual installation
 
-1. Copiez le dossier `custom_components/parental_control/` dans `/config/custom_components/`
-2. Redémarrez Home Assistant
+1. Copy the `custom_components/parental_control/` folder into `/config/custom_components/`
+2. Restart Home Assistant
 
 ---
 
 ## Configuration
 
-1. Allez dans **Paramètres → Appareils & services → Ajouter une intégration**
-2. Recherchez **Parental Control**
-3. Donnez un nom (par exemple le prénom de l'enfant)
-4. Sélectionnez le switch de contrôle parental (switch GL.iNet issu de ha-glinet-router, ou tout autre switch)
-5. Pour chaque jour, activez éventuellement une plage et renseignez l'heure de début et de fin
+1. Go to **Settings → Devices & services → Add integration**
+2. Search for **Parental Control**
+3. Give it a name (for example a child's name)
+4. Select **one or more** parental control switches (GL.iNet switches from ha-glinet-router, or any other switches)
+5. For each weekday, optionally enable a window and set the start and end times
 
-Le planning se modifie ensuite via **Configurer** sur l'entrée d'intégration.
+The schedule can later be edited with **Configure** on the integration entry.
 
-### Exemple
+### Example
 
-| Jour | Plage |
-|------|--------|
-| Lundi – vendredi | 16:00 – 20:00 |
-| Samedi – dimanche | 10:00 – 21:00 |
+| Day | Window |
+|-----|--------|
+| Monday – Friday | 16:00 – 20:00 |
+| Saturday – Sunday | 10:00 – 21:00 |
 
-Pendant ces horaires, le switch GL.iNet de contrôle parental est éteint (accès autorisé). Le reste du temps, il est rallumé.
+During those hours, every selected GL.iNet parental control switch is turned off (access allowed). The rest of the time they are turned back on.
 
 ---
 
-## Prérequis
+## Requirements
 
 - Home Assistant ≥ 2024.1.0
-- Un switch existant dans Home Assistant, typiquement un switch de contrôle parental de [ha-glinet-router](https://github.com/vithurshanselvarajah/ha-glinet-router)
+- One or more existing switches in Home Assistant, typically parental control switches from [ha-glinet-router](https://github.com/vithurshanselvarajah/ha-glinet-router)
 
 ---
 
-## Icône
+## Icon
 
-- HACS et Home Assistant utilisent `custom_components/parental_control/brand/icon.png` et `custom_components/parental_control/brand/logo.png`
-- `icon.png` à la racine sert à l'affichage GitHub
-- Les entités utilisent des icônes `mdi:*`
+- HACS and Home Assistant use `custom_components/parental_control/brand/icon.png` and `custom_components/parental_control/brand/logo.png`
+- Root `icon.png` is used for GitHub display
+- Entities use `mdi:*` icons
 
 ---
 
-## Licence
+## License
 
 MIT License

@@ -16,12 +16,12 @@ from homeassistant.util import dt as dt_util
 from .const import (
     CONF_INVERT,
     CONF_NAME,
-    CONF_SWITCH_ENTITY,
     DOMAIN,
     STATUS_ALLOWED,
     STATUS_DISABLED,
     STATUS_RESTRICTED,
     STATUS_UNAVAILABLE,
+    normalize_switch_entities,
 )
 from .schedule import (
     format_time,
@@ -53,8 +53,13 @@ class ParentalControlController:
         return self.config.get(CONF_NAME) or "Parental Control"
 
     @property
-    def switch_entity_id(self) -> str:
-        return self.config[CONF_SWITCH_ENTITY]
+    def switch_entity_ids(self) -> list[str]:
+        return normalize_switch_entities(self.config)
+
+    @property
+    def switch_entity_id(self) -> str | None:
+        ids = self.switch_entity_ids
+        return ids[0] if ids else None
 
     @property
     def invert(self) -> bool:
@@ -91,8 +96,14 @@ class ParentalControlController:
     def status(self) -> str:
         if self.enabled is False:
             return STATUS_DISABLED
-        state = self.hass.states.get(self.switch_entity_id)
-        if state is None or state.state in ("unavailable", "unknown"):
+        ids = self.switch_entity_ids
+        available = False
+        for entity_id in ids:
+            state = self.hass.states.get(entity_id)
+            if state is not None and state.state not in ("unavailable", "unknown"):
+                available = True
+                break
+        if not ids or not available:
             return STATUS_UNAVAILABLE
         if self.in_allowed_period():
             return STATUS_ALLOWED
@@ -103,8 +114,13 @@ class ParentalControlController:
         today = today_window(now, self.config)
         next_at = self.next_change_at(now)
         desired_on = self.desired_switch_on(now)
+        switch_states = {}
+        for entity_id in self.switch_entity_ids:
+            state = self.hass.states.get(entity_id)
+            switch_states[entity_id] = state.state if state else "unavailable"
         return {
-            "switch_entity_id": self.switch_entity_id,
+            "switch_entity_ids": self.switch_entity_ids,
+            "switch_states": switch_states,
             "in_allowed_period": self.in_allowed_period(now),
             "desired_switch_state": "on" if desired_on else "off",
             "today": "enabled" if today.enabled else "disabled",
@@ -143,26 +159,30 @@ class ParentalControlController:
         self.async_notify()
 
     async def async_apply(self, now: datetime | None = None) -> None:
-        """Set the target switch to the scheduled state when the scheduler is on."""
+        """Set each target switch to the scheduled state when the scheduler is on."""
         if self.enabled is not True:
             return
 
-        entity_id = self.switch_entity_id
-        state = self.hass.states.get(entity_id)
-        if state is None or state.state in ("unavailable", "unknown"):
-            _LOGGER.debug("Target switch %s is not available", entity_id)
-            return
-
         want_on = self.desired_switch_on(now)
-        is_on = state.state == "on"
-        if want_on == is_on:
+        service = "turn_on" if want_on else "turn_off"
+        entity_ids: list[str] = []
+
+        for entity_id in self.switch_entity_ids:
+            state = self.hass.states.get(entity_id)
+            if state is None or state.state in ("unavailable", "unknown"):
+                _LOGGER.debug("Target switch %s is not available", entity_id)
+                continue
+            if (state.state == "on") == want_on:
+                continue
+            entity_ids.append(entity_id)
+
+        if not entity_ids:
             return
 
-        service = "turn_on" if want_on else "turn_off"
-        _LOGGER.debug("Parental Control: calling switch.%s on %s", service, entity_id)
+        _LOGGER.debug("Parental Control: calling switch.%s on %s", service, entity_ids)
         await self.hass.services.async_call(
             "switch",
             service,
-            {"entity_id": entity_id},
+            {"entity_id": entity_ids},
             blocking=False,
         )
